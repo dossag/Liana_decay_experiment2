@@ -522,8 +522,8 @@ lblwHemi<-expression(paste( F["(1,93)"],"   =   37.48"))
 w_hemc_plot<- ggplot(data = in_traitw, aes(x = growth_form, y =hemicellulose)) +
   geom_boxplot(aes(fill = growth_form), color = "black")+ scale_fill_manual(values = c("lightcoral", "#00E5EE"))+ 
   labs(x= "Growth form", y= "Hemicellulose (%)", fill= "Growth form", title = "f")+
-  annotate("text", x = 1.6, y = 24, size=5.5, hjust=0.5,label = as.character(lblwHemi), parse=TRUE) +
-  annotate("text", x = 1.6, y = 22.5, size=5.5, label = "p < 0.001")+
+  annotate("text", x = 1.6, y = 23, size=5.5, hjust=0.5,label = as.character(lblwHemi), parse=TRUE) +
+  annotate("text", x = 1.6, y = 21.5, size=5.5, label = "p < 0.001")+
   theme_bw()+
   theme(text = element_text(size = 14,face="bold"), 
         axis.line = element_line(colour = "black"),
@@ -731,7 +731,7 @@ summary(av3)
 anova(av3)
 m<- aov(T_Si_g_kg~growth_form,data=in_traitw)
 summary(m)
-w_silicon<- ggplot(data = in_traitw, aes(x = growth_form, y =T_sugar_per)) +
+w_silicon<- ggplot(data = in_traitw, aes(x = growth_form, y =T_Si_g_kg)) +
   geom_boxplot(aes(fill = growth_form), color = "black")+ scale_fill_manual(values = c("lightcoral", "#00E5EE"))+
   labs(x= "Growth form", y= "Silicon (g/kg)", fill= "Growth form", title = "m")+
   theme_bw()+
@@ -1125,8 +1125,8 @@ lblbTsug<-expression(paste( F["(1,38)"],"   =   18.36"))
 b_sugars<- ggplot(data = in_traitb, aes(x = growth_form, y =T_sugar_per)) +
   geom_boxplot(aes(fill = growth_form), color = "black")+ scale_fill_manual(values = c("lightcoral", "#00E5EE"))+
   labs(x= "Growth form", y= "Total sugars (%)", fill= "Growth form", title = "l")+
-  annotate("text", x = 1.3, y = 6, size=5.5, hjust=0.5,label = as.character(lblbMn), parse=TRUE) +
-  annotate("text", x = 1.3, y = 5.8, size=5.5, label = "p =  0.0001")+
+  annotate("text", x = 1.3, y = 6, size=5.5, hjust=0.5,label = as.character(lblbTsug), parse=TRUE) +
+  annotate("text", x = 1.3, y = 5, size=5.5, label = "p =  0.0001")+
   theme_bw()+
   theme(text = element_text(size = 14,face="bold"), 
         axis.line = element_line(colour = "black"),
@@ -1152,7 +1152,7 @@ summary(av3)
 anova(av3)
 m<- aov(T_Si_g_kg~growth_form,data=in_traitb)
 summary(m)
-b_silicon<- ggplot(data = in_traitb, aes(x = growth_form, y =T_sugar_per)) +
+b_silicon<- ggplot(data = in_traitb, aes(x = growth_form, y =T_Si_g_kg)) +
   geom_boxplot(aes(fill = growth_form), color = "black")+ scale_fill_manual(values = c("lightcoral", "#00E5EE"))+
   labs(x= "Growth form", y= "Silicon (g/kg)", fill= "Growth form", title = "m")+
   theme_bw()+
