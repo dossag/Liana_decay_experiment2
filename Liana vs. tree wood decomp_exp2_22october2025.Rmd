@@ -25,6 +25,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+# Introduction
+
+Wood decomposition is important to redistribute nutrient within ecosystems. But most of our knowledge of this process is based on empirical research on one plant growth form. In tropical and subtropical forests, the contribution of lianas another important plant growth form may also be important to forest carbon and nutrient dynamics. Lianas usually have high stem turnover rates and may produce softer wood with a distinct chemical profile that may decay more rapidly than trees. Although, numerous studies have examined chemical profile of tree and liana leaves, to date, however, the chemical profile and afterlife and decomposition dynamics of lianas remained unknown. In this experiment, we attempt to fill this gap by directly contrasting wood decomposition of 12 liana and 12 tree species in a tropical forest in China. We hypothesized that: 1) liana wood decomposes faster than tree wood; 2) liana wood characteristics differ systematically from tree wood; and 3) microbial decay is higher for liana wood due to its larger vessels and richer nutrients content, and thus have a stronger effect on the wood decay of lianas compared to trees.
+We used a common garden as depicted in the following figure S2 ![Figure S2](Figure S2.png).
+
+Figure S2
+
+
+## Load needed libraries
+
 ```{r,message=FALSE,warning=FALSE}
 library(dplyr)
 library(tidyverse)
@@ -36,17 +46,13 @@ library(MuMIn)
 
 ```
 
-# Introduction
-
-Wood decomposition is important to redistribute nutrient within ecosystems. But most of our knowledge of this process is based on empirical research on one plant growth form. In tropical and subtropical forests, the contribution of lianas another important plant growth form may also be important to forest carbon and nutrient dynamics. Lianas usually have high stem turnover rates and may produce softer wood with a distinct chemical profile that may decay more rapidly than trees. Although, numerous studies have examined chemical profile of tree and liana leaves, to date, however, the chemical profile and afterlife and decomposition dynamics of lianas remained unknown. In this experiment, we attempt to fill this gap by directly contrasting wood decomposition of 12 liana and 12 tree species in a tropical forest in China. We hypothesized that: 1) liana wood decomposes faster than tree wood; 2) liana wood characteristics differ systematically from tree wood; and 3) microbial decay is higher for liana wood due to its larger vessels and richer nutrients content, and thus have a stronger effect on the wood decay of lianas compared to trees.
-We used a common garden as depicted in the following figure S2 ![Figure S2](Figure S2.png).
 
 # Initial logs trait data before field incubation
 
 Here we load the initial traits (from the file called "Experiment2_data_sheet.csv") measured for each woody debris (WD) of the 12 species of liana and 12 species of trees. This includes, diameter, bark thickness, initial mass of each WD, the length of each WD used and the unique tag given to each WD before field incubation and the type of litterbag mesh size in which each WD was placed in. Moreover, for each WD, one initial disk was collected, the volumes (dry and wet) of the disk mass of fresh and dry disk (completed at 105 degrees) were measured. We later used this to measure the initial water content and compute the dry mass of each WD prior to incubation. 
 
 
-```{r,message=FALSE,warning=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
 in_dat<-read.csv("Experiment2_datasheet.csv", header = TRUE, sep = ",", quote = "\"",
               dec = ".", fill = TRUE, comment.char = "",fileEncoding = 'latin1')
 
@@ -57,7 +63,7 @@ str(in_dat)
 
 Let's convert some variables to numeric and some to factors.
 
-```{r,message=FALSE,warning=FALSE}
+```{r,message=FALSE,warning=FALSE, results='hide'}
 #convert to numeric
 
 in_dat$diameter_1.size_cm<- as.numeric(in_dat$diameter_1.size_cm)
@@ -84,12 +90,6 @@ summary(in_dat)
 dim(in_dat)
 ```
 
-in_dat %>% group_by(Tag) %>% filter(n() > 1)
-library(tidyr)
-in_dat<- in_dat %>% drop_na(Tag)
-in_dat<-subset(in_dat, !is.na(Tag))
-
-dim(in_dat)
 
 ### Calculate average bark thickness
 
@@ -103,12 +103,14 @@ in_dat$av_bark_thickness<- (in_dat$Bark.thickness_1._mm+in_dat$Bark.thickness_2.
 
 One argument that might support to why lianas are likely to decompose at a faster rate than trees is the difference in wood densities. From literature, we see that trees have denser woods while lianas woody debris (WD) have wider vessels hence lower density. Here, we test whether this assumption of trees having higher density holds for our wood samples by calculating their wood density and ask: does the average WD wood density vary with the growth forms? We calculate the WD wood density as (mass/volume) for the dry WD subsections. 
 
-```{r,message=FALSE,warning=FALSE}
+```{r,message=FALSE,warning=FALSE, results="hide"}
 in_dat$density<- in_dat$Dry_weight_of_small_wood_blocks_g/in_dat$Dry_volume_of_small_wood_blocks.g
 summary(in_dat)
 in_dat$density<-as.numeric(in_dat$density)
+#plot(density~ growth_form, data=in_dat)
+```
 
-plot(density~ growth_form, data=in_dat)
+```{r,message=FALSE,warning=FALSE}
 anvb<- aov(density~growth_form*diameter_class,data=in_dat)
 anova(anvb)
 summary(anvb)
@@ -231,15 +233,15 @@ in_dat%>% group_by(diameter_class)%>% summarise(median=median(av_wd_diameter, na
 ```
 
 Measuring bark percentage (check the link below) also see Berendt et al 2021 European Journal of Wood and Wood Products 
-https://fennerschool-associated.anu.edu.au/mensuration/BrackandWood1998/BARK.HTM#:~:text=The%20bark%20percent%20of%20a%20log%20may%20be,bark%20respectively%20at%20the%20centre%20of%20the%20log.
+https://fennerschool-associated.anu.edu.au/mensuration/BrackandWood1998/BARK.HTM#.
 The proportion of fresh bark volume (Vbark) was calculated as the difference between the disc’s fresh volume over bark (Vo.b.) and under bark (Vu.b.) divided by Vo.b.:
 
-The bark to inner wood diameter ratio (bark:wood ratio) was calculated by taking 2x the average bark thickness divided by the diameter of the inner wood
+The bark to inner wood diameter ratio (bark:wood ratio) was calculated by taking 2x the average bark thickness divided by the diameter of the inner wood.
 
 ```{r,message=FALSE,warning=FALSE}
 in_dat$bark_wd_ratio<- 2*in_dat$av_bark_thickness/in_dat$wd_under_bark
 
-plot(bark_wd_ratio~ growth_form, data=in_dat)
+#plot(bark_wd_ratio~ growth_form, data=in_dat)
 av1<- aov(bark_wd_ratio~growth_form*diameter_class,data=in_dat)
 anova(av1)
 summary(av1)
@@ -280,7 +282,7 @@ bark_wd_ratio_plot<- ggplot(in_dat, aes(x = growth_form, y = bark_wd_ratio)) +
         panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),
         panel.border = element_rect(colour = "black", fill=NA, size=1.5))
-bark_wd_ratio_plot
+#bark_wd_ratio_plot
 ```
 
 ```{r}
@@ -307,17 +309,16 @@ To avoid altering or changing the wood structure and properties before field inc
 Dry mass=  [fresh mass]_(20 cm log)/[fresh mass]_(5cm disc) x [dry mass]_(5cm disc)
 
 Percentage mass loss was calculated using the following equation: 
+
  **ML=(M_initial-M_final)/M_initial x 100 ** 
  Where M_initial represents the initial dry mass of the WD and M_final represents the final dry for the WD at the retrieval time.
  
-```{r,message=FALSE,warning=FALSE}
+```{r,message=FALSE,warning=FALSE, results='hide'}
 in_dat$initial_mass<- (in_dat$Wet_weight_of_wood_block_g /in_dat$Wet_weight_of_small_pieces_of_wood_g)*in_dat$Dry_weight_of_small_wood_blocks_g
 summary(in_dat)
 ```
 
 # Import the chemistry data for the logs before the start of the experiment 
-
-
 
 ## Initial chemical traits data 
 
@@ -347,6 +348,8 @@ in_trait$hemicellulose <- in_trait$NDF_per-in_trait$ADF_per
 ```
 
 # Wood traits 
+
+We measured wood traits across woody and growth forms. 
 
 ## Carbon
 
@@ -567,7 +570,7 @@ w_cal
 
 Liana wood has higher calcium content than tree wood
 
-## potassium
+## Potassium
 
 ```{r,message=FALSE,warning=FALSE}
 hist(in_traitw$K_g_kg)
@@ -755,6 +758,8 @@ ggsave(filename="Figure S3.png", plot=w_intrait_plot, device="png",
 
 # Bark trait
 
+We measured bark traits across woody and growth forms for species that have bark. 
+
 ## Carbon
 
 ```{r,message=FALSE,warning=FALSE}
@@ -815,6 +820,8 @@ b_nit
 
 Bark N does not change with diameter classes.
 Tree bark N not different from liana bark N.
+
+## Condensed tannins
 
 ```{r,message=FALSE,warning=FALSE}
 hist(in_traitb$Tannins)
@@ -940,7 +947,7 @@ b_hemc_plot
 
 No differences across diameters nor across growth forms.
 
-## calcium
+## Calcium
 
 ```{r,message=FALSE,warning=FALSE}
 hist(in_traitb$Ca_g_kg)
@@ -1161,7 +1168,7 @@ No differences between diameters nor across growth forms.
 ```{r,message=FALSE,warning=FALSE}
 library(patchwork)
 b_intrait_plot<- b_carb+b_nit+b_cd+b_cel+b_adl+b_hemc_plot+b_cal+b_pot+b_mag+b_mang+b_ph+b_sugars+b_silicon
-b_intrait_plot
+#b_intrait_plot
 
 ## Initial bark traits across different wood tissue for lianas and trees. (a) Carbon, (b) Nitrogen, (c) condensed tannins (d) cellulose, (e) lignin, (f) Hemicellulose, (g) Calcium, (h) Potassium, (i) Magnesium, (j) Manganese, (k) Phosphorus, (l) Total sugars, (m) Silicon.
 ggsave(filename="Figure S4.png", plot=b_intrait_plot, device="png",
@@ -1170,8 +1177,10 @@ ggsave(filename="Figure S4.png", plot=b_intrait_plot, device="png",
 ```
 
 
+Initial traits do not vary between the diameter classes so we can instead use the overall average mean per species. 
+
 ```{r,message=FALSE,warning=FALSE}
-# Initial traits do not vary between the diameter class so we can instead use the average mean per species 
+
 
 lev<- c("Calamus henryanus","Ayenia grandifolia","Celastrus sp1","Iodes vitiginea","Celastrus sp2","Cheniella touranensis","Piper flaviflorum",
 "Bridelia stipularis","Cayratia trifolia","Ventilago leiocarpa","Senegalia pruinescens","Urceola rosea","Kleinhovia hospita","Macaranga denticulata","Thyrsostachys siamensis","Bauhinia purpurea",
@@ -1235,7 +1244,7 @@ traits_wide
 
 The initial traits are presented in the Table S1 as the means for each species. Since there was no significance difference between the traits across diameters, then the means for each trait is the mean of both diameters values. 
 
-# join intial traits to the datasheet file
+# Join intial traits to the datasheet file
 
 ```{r,message=FALSE,warning=FALSE}
 
@@ -1360,13 +1369,13 @@ setdiff(in_dat$Tag, data_new$Tag)
 
 
 ```{r,message=FALSE,warning=FALSE}
-summary(data_new)
+#summary(data_new)
 ```
 
 
 ## Join the harvest data to the initial data file
 
-```{r,message=FALSE,warning=FALSE}
+```{r,message=FALSE,warning=FALSE, hide="hide"}
 hav_dat<- in_datb%>% left_join(data_new, by= c("Tag"))
 summary(hav_dat)
 
@@ -1382,7 +1391,7 @@ hav_datb$incubation_time<- as.factor(hav_datb$incubation_time)
 ```
 
 
-Calculate percentage mass loss percentage mass loss was calculated using the following equation: 
+Calculate percentage mass loss percentage mass loss was calculated using the equation mentioned above and used here as per_ml: 
 
 ```{r,message=FALSE,warning=FALSE}
 hav_datb$per_ml<- ((hav_datb$initial_mass-hav_datb$final_mass)/hav_datb$initial_mass)*100
@@ -1412,13 +1421,15 @@ hav_datb%>% group_by(growth_form,Harvest,block)%>% count(species)
 
 # Import the phylogeny tree
 
+Here we need to plot the phylogeny tree of the species we use in our experiment. 
+
 ```{r,message=FALSE,warning=FALSE}
 library(ggtree)
 library(phytools)
 library(phylobase)
 trb<-read.tree(file="Figure.1b.tre")
 plot(trb)
-ggtree(trb)+ geom_tiplab()
+#ggtree(trb)+ geom_tiplab()
 
 species_order<- c("Bridelia stipularis","Mesua ferrea","Macaranga denticulata","Celastrus sp1","Celastrus sp2","Bauhinia purpurea","Senegalia pruinescens",
                 "Cheniella touranensis", "Ventilago leiocarpa", "Ficus altissima","Kleinhovia hospita","Ayenia grandifolia","Shorea assamica","Toona ciliata",
@@ -1497,6 +1508,7 @@ xt
 
 ```
 
+Figure S1 Phylogenetic tree showing the relationship between liana and tree species selected for this experiment
 
 ```{r,message=FALSE,warning=FALSE}
 ### Phylogenetic tree showing the relationship between liana and tree species selected for this experiment.
@@ -1522,7 +1534,7 @@ ggtitle(label="2.5 cm wood- inverterbrates absent", subtitle ="6 months")+ theme
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-sm_fn6
+#sm_fn6
 
 fine_small<- fine_k[fine_k$diameter_class %in% c("2.5 cm"), ]
 fine_small_12<- fine_small[fine_small$incubation_time %in% c("12"), ]
@@ -1542,7 +1554,7 @@ sm_fn12<- ggplot(fine_small_12, aes(y = species, x= meanmass,fill= growth_form))
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-sm_fn12
+#sm_fn12
 
 fine_small<- fine_k[fine_k$diameter_class %in% c("2.5 cm"), ]
 fine_small_18<- fine_small[fine_small$incubation_time %in% c("18"), ]
@@ -1561,7 +1573,7 @@ ggtitle(label="", subtitle ="18 months")+ theme(
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-sm_fn18
+#sm_fn18
 
 
 fine_small<- fine_k[fine_k$diameter_class %in% c("2.5 cm"), ]
@@ -1581,7 +1593,7 @@ sm_fn24<- ggplot(fine_small_24, aes(y = species, x= meanmass,fill= growth_form))
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-sm_fn24
+#sm_fn24
 ```
 
 
@@ -1605,7 +1617,7 @@ bg_fn6<- ggplot(fine_big_6, aes(y = species, x= meanmass,fill= growth_form)) +
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-bg_fn6
+#bg_fn6
 
 fine_big<- fine_k[fine_k$diameter_class %in% c("5.0 cm"), ]
 fine_big_12<- fine_big[fine_big$incubation_time %in% c("12"), ]
@@ -1624,7 +1636,7 @@ bg_fn12<- ggplot(fine_big_12, aes(y = species, x= meanmass,fill= growth_form)) +
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
 
-bg_fn12
+#bg_fn12
 
 fine_big<- fine_k[fine_k$diameter_class %in% c("5.0 cm"), ]
 fine_big_18<- fine_big[fine_big$incubation_time %in% c("18"), ]
@@ -1642,7 +1654,7 @@ bg_fn18<- ggplot(fine_big_18, aes(y = species, x= meanmass,fill= growth_form)) +
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-bg_fn18
+#bg_fn18
 
 
 fine_big<- fine_k[fine_k$diameter_class %in% c("5.0 cm"), ]
@@ -1661,7 +1673,7 @@ bg_fn24<- ggplot(fine_big_24, aes(y = species, x= meanmass,fill= growth_form)) +
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-bg_fn24
+#bg_fn24
 ```
 
 ```{r,message=FALSE,warning=FALSE}
@@ -1692,7 +1704,7 @@ sm_crs6<- ggplot(coarse_small_6, aes(y = species, x= meanmass,fill= growth_form)
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-sm_crs6
+#sm_crs6
 
 coarse_small<- coarse_k[coarse_k$diameter_class %in% c("2.5 cm"), ]
 coarse_small_12<- coarse_small[coarse_small$incubation_time %in% c("12"), ]
@@ -1710,7 +1722,7 @@ sm_crs12<- ggplot(coarse_small_12, aes(y = species, x= meanmass,fill= growth_for
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-sm_crs12
+#sm_crs12
 
 
 coarse_small_18<- coarse_small[coarse_small$incubation_time %in% c("18"), ]
@@ -1728,7 +1740,7 @@ sm_crs18<- ggplot(coarse_small_18, aes(y = species, x= meanmass,fill= growth_for
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-sm_crs18
+#sm_crs18
 
 
 coarse_small_24<- coarse_small[coarse_small$incubation_time %in% c("24"), ]
@@ -1746,7 +1758,7 @@ sm_crs24<- ggplot(coarse_small_24, aes(y = species, x= meanmass,fill= growth_for
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-sm_crs24
+#sm_crs24
 ```
 
 
@@ -1768,7 +1780,7 @@ bg_crs6<- ggplot(coarse_big_6, aes(y = species, x= meanmass,fill= growth_form)) 
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-bg_crs6
+#bg_crs6
 
 coarse_big<- coarse_k[coarse_k$diameter_class %in% c("5.0 cm"), ]
 coarse_big_12<- coarse_big[coarse_big$incubation_time %in% c("12"), ]
@@ -1786,7 +1798,7 @@ bg_crs12<- ggplot(coarse_big_12, aes(y = species, x= meanmass,fill= growth_form)
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-bg_crs12
+#bg_crs12
 
 
 coarse_big_18<- coarse_big[coarse_big$incubation_time %in% c("18"), ]
@@ -1804,7 +1816,7 @@ bg_crs18<- ggplot(coarse_big_18, aes(y = species, x= meanmass,fill= growth_form)
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-bg_crs18
+#bg_crs18
 
 
 coarse_big_24<- coarse_big[coarse_big$incubation_time %in% c("24"), ]
@@ -1822,7 +1834,7 @@ bg_crs24<- ggplot(coarse_big_24, aes(y = species, x= meanmass,fill= growth_form)
     plot.title = element_text(color = "black", size = 12, face = "bold"),
     plot.subtitle = element_text(color = "black",size = 12))+
   theme( plot.subtitle = element_text(hjust = 0.5))+ theme(plot.margin = margin(0, 0, 0, 0, "pt"))
-bg_crs24
+#bg_crs24
 ```
 
 
@@ -1845,7 +1857,7 @@ forth_harvest<- hav_datb[hav_datb$Harvest %in% c("4"), ]
 forth_harvest$W_D_prop<- forth_harvest$f_bark_mass-0.01/forth_harvest$f_wood_mass-0.01
 
 #write.csv(forth_harvest, "hv4.csv")
-plot(W_D_prop~ growth_form, data= forth_harvest)
+#plot(W_D_prop~ growth_form, data= forth_harvest)
 
 #b_w_prop_fig<- ggplot(data = forth_harvest, aes(x = growth_form, y =W_D_prop)) + theme_bw()+
 #  theme(legend.position= "none")+ 
@@ -1951,13 +1963,14 @@ hist(forth_harvest_small_crs$W_D_prop^(2))
 md_small_crs<- lmer(log(W_D_prop)~ growth_form + (1|species), data = forth_harvest_small_crs)
 anova(md_small_crs)
 
+lbl_small_crs<-expression(paste( F["(1,14)"],"   =   5.26"))
 dim(forth_harvest_big_fine)
 plot_small_crs<- ggplot(data = forth_harvest_small_crs, aes(x = growth_form, y =W_D_prop)) + theme_bw()+
   theme(legend.position= "none")+
   labs(x= "Growth form",y="Bark to wood mass proportion")+
   ggtitle("Invertebrates access (2.5 cm)")+
   geom_boxplot(aes(fill = growth_form), color = "black")+ 
-    annotate("text", x = 2, y = 30, size=3.5, hjust=0.5,label = as.character(expression(paste( F["(1,14)"],"   =   5.26")))) +
+    annotate("text", x = 2, y = 30, size=3.5, hjust=0.5,label = as.character()) +
   annotate("text", x = 2, y = 25, size=3.5, label = "p = 0.03")+
   theme(axis.line = element_line(colour = "black", size = 0.5),
         axis.ticks.x=element_line(colour = "black"),
@@ -2334,19 +2347,19 @@ library(FactoMineR)
 library(factoextra)
 library(clusterSim) 
 dim(dt_fb)
-mburu2 <- dt_fb[!apply(dt_fb[,c( 'k',"mesh_size", "diameter_class","block", "mean_density","avg_brkwd_ratio",
+liana_tree2 <- dt_fb[!apply(dt_fb[,c( 'k',"mesh_size", "diameter_class","block", "mean_density","avg_brkwd_ratio",
                                        "Nitrogen_wood", "Carbon_wood", "cellulose_wood", "hemicellulose_wood",
                                  "Tannins_wood","Calcium_wood","Potassium_wood", "magesium_wood","Manganese_wood",
                                  "Phosphorous_wood","sugars_wood", "Carbon_bark", "Nitrogen_bark",
                                  "cellulose_bark", "hemicellulose_bark","ADL_bark","Tannins_bark","Calcium_bark",
                                  "Potassium_bark", "magesium_bark","Manganese_bark","Phosphorous_bark",
                                  "sugars_bark","Silicon_wood","Silicon_bark")], 1, anyNA),]
-dim(mburu2) 
+dim(liana_tree2) 
 
-mburu2$C_N<- mburu2$Carbon_wood/mburu2$Nitrogen_wood
-mburu2$lig_N<- mburu2$ADL_wood/mburu2$Nitrogen_wood
-dim(mburu2)
-pcn<- ungroup(mburu2) %>% dplyr::select(Carbon_wood, Nitrogen_wood, cellulose_wood, hemicellulose_wood, ADL_wood,Tannins_wood,Calcium_wood, Potassium_wood,magesium_wood,Manganese_wood,Phosphorous_wood,sugars_wood,Silicon_wood, C_N,lig_N)
+liana_tree2$C_N<- liana_tree2$Carbon_wood/liana_tree2$Nitrogen_wood
+liana_tree2$lig_N<- liana_tree2$ADL_wood/liana_tree2$Nitrogen_wood
+dim(liana_tree2)
+pcn<- ungroup(liana_tree2) %>% dplyr::select(Carbon_wood, Nitrogen_wood, cellulose_wood, hemicellulose_wood, ADL_wood,Tannins_wood,Calcium_wood, Potassium_wood,magesium_wood,Manganese_wood,Phosphorous_wood,sugars_wood,Silicon_wood, C_N,lig_N)
 
 dim(pcn)
 res<- cor(pcn, method = "pearson")
@@ -2364,23 +2377,23 @@ wdpca<- prcomp(pcn, scale=TRUE)
 # getting PCA scores
 s <- as.data.frame(wdpca$x)
 s <- dplyr::select(s, PC1:PC6)
-s$mesh_size <- mburu2$mesh_size
-s$growth_form <- mburu2$growth_form
-s$density <- mburu2$avg_density
-s$bark_wd_ratio<- mburu2$avg_brkwd_ratio
-s$species<- mburu2$species
-s$k<- mburu2$k
-s$block<- mburu2$block
+s$mesh_size <- liana_tree2$mesh_size
+s$growth_form <- liana_tree2$growth_form
+s$density <- liana_tree2$avg_density
+s$bark_wd_ratio<- liana_tree2$avg_brkwd_ratio
+s$species<- liana_tree2$species
+s$k<- liana_tree2$k
+s$block<- liana_tree2$block
 ```
 
 # Bark pca
 
 ```{r,message=FALSE,warning=FALSE}
-mburu2$C_N_bark<- mburu2$Carbon_bark/mburu2$Nitrogen_bark
-mburu2$lig_N_bark<- mburu2$ADL_bark/mburu2$Nitrogen_bark
+liana_tree2$C_N_bark<- liana_tree2$Carbon_bark/liana_tree2$Nitrogen_bark
+liana_tree2$lig_N_bark<- liana_tree2$ADL_bark/liana_tree2$Nitrogen_bark
 
-dim(mburu2)
-pcnb<- ungroup(mburu2) %>% dplyr::select(Carbon_bark, Nitrogen_bark, cellulose_bark, hemicellulose_bark, ADL_bark,Tannins_bark, Calcium_bark,Potassium_bark,magesium_bark,Manganese_wood,Phosphorous_bark,sugars_wood,Silicon_bark,C_N_bark,lig_N_bark)
+dim(liana_tree2)
+pcnb<- ungroup(liana_tree2) %>% dplyr::select(Carbon_bark, Nitrogen_bark, cellulose_bark, hemicellulose_bark, ADL_bark,Tannins_bark, Calcium_bark,Potassium_bark,magesium_bark,Manganese_wood,Phosphorous_bark,sugars_wood,Silicon_bark,C_N_bark,lig_N_bark)
 
 dim(pcnb)
 resb<- cor(pcnb, method = "pearson")
@@ -2394,7 +2407,7 @@ s_bark <- dplyr::select(s_bark, PC1:PC6)
 s$PC1_bark<- s_bark$PC1
 s$PC2_bark<- s_bark$PC2
 s$PC3_bark<- s_bark$PC3
-s$diameter_class<- mburu2$diameter_class
+s$diameter_class<- liana_tree2$diameter_class
 
 ```
 
@@ -2406,25 +2419,25 @@ library(ggrepel)
 library(reshape2)
 #env=rapply(env,scale,c("numeric"),how="replace")
 
-pca_wd <- PCA(mburu2[ ,c("growth_form","C_N","lig_N","ADL_wood", "Tannins_wood", "hemicellulose_wood", "Nitrogen_wood","Carbon_wood","cellulose_wood","Calcium_wood","Potassium_wood","magesium_wood", "Manganese_wood", "Phosphorous_wood", "sugars_wood","Silicon_bark")],scale.unit = TRUE, quali.sup = c(1:1), graph = FALSE)
+pca_wd <- PCA(liana_tree2[ ,c("growth_form","C_N","lig_N","ADL_wood", "Tannins_wood", "hemicellulose_wood", "Nitrogen_wood","Carbon_wood","cellulose_wood","Calcium_wood","Potassium_wood","magesium_wood", "Manganese_wood", "Phosphorous_wood", "sugars_wood","Silicon_bark")],scale.unit = TRUE, quali.sup = c(1:1), graph = FALSE)
 
 summary(pca_wd)
-plot.PCA(pca_wd)
+#plot.PCA(pca_wd)
 # extract pc scores for first two component and add to dat dataframe
-mburu2$pc1_wood <- pca_wd$ind$coord[, 1] # indexing the first column
-mburu2$pc2_wood <- pca_wd$ind$coord[, 2]  # indexing the second column
+liana_tree2$pc1_wood <- pca_wd$ind$coord[, 1] # indexing the first column
+liana_tree2$pc2_wood <- pca_wd$ind$coord[, 2]  # indexing the second column
 pca_vars_wd <- pca_wd$var$coord %>% data.frame
 pca_vars_wd $vars <- rownames(pca_vars_wd )
 pca_vars_wd_m <- melt(pca_vars_wd, id.vars = "vars")
 
 library(ggplot2)
-wd_pcaplot <- ggplot(data = mburu2, aes(x = pc1_wood*-1, y = pc2_wood*-1)) +
+wd_pcaplot <- ggplot(data = liana_tree2, aes(x = pc1_wood*-1, y = pc2_wood*-1)) +
   geom_hline(yintercept = 0, lty = 2) +
   geom_vline(xintercept = 0, lty = 2) +
   geom_point(alpha = 0.5,size= 3, aes(colour=growth_form)) +scale_shape_manual(values=c(15,19,17))+
   scale_colour_manual(values = c("lightcoral", "#00E5EE"))+
   geom_segment(data = pca_vars_wd, aes(x = 0, xend = Dim.1*5.5*-1, y = 0, yend = Dim.2*5.5*-1),arrow = arrow(length = unit(0.025, "npc"), type = "open"), lwd = 0.7, colour= "gray") + 
-  xlab("PC1 36.10%") + ylab("PC2 15.40%") + coord_equal() + theme_minimal() + 
+  xlab("PC1 36.66%") + ylab("PC2 14.77%") + coord_equal() + theme_minimal() + 
   geom_text_repel(data = pca_vars_wd ,size=2.7, fontface = 'bold', min.segment.length = Inf,max.overlaps = Inf,
     hjust = 0, segment.size = 0.2,aes(x = Dim.1*6.2*-1, y =  Dim.2*6.2*-1,
     label = c("C:N", "Lignin:N","Lignin", "Condensed tannins","Hemicellulose", "N","C","Cellulose","Ca","K","Mg","Mn","P","Sugars","Si")),)+
@@ -2442,15 +2455,15 @@ wd_pcaplot
 #bark PCA plots 
 
 
-pca_brk<- PCA(mburu2[ ,c("growth_form","C_N","lig_N","ADL_bark", "Tannins_bark", "hemicellulose_bark", "Nitrogen_bark","Carbon_bark","cellulose_bark","Calcium_bark","Potassium_bark","magesium_bark", "Manganese_bark", "Phosphorous_bark", "sugars_bark","Silicon_bark")],scale.unit = TRUE, quali.sup = c(1:1), graph = FALSE)
+pca_brk<- PCA(liana_tree2[ ,c("growth_form","C_N","lig_N","ADL_bark", "Tannins_bark", "hemicellulose_bark", "Nitrogen_bark","Carbon_bark","cellulose_bark","Calcium_bark","Potassium_bark","magesium_bark", "Manganese_bark", "Phosphorous_bark", "sugars_bark","Silicon_bark")],scale.unit = TRUE, quali.sup = c(1:1), graph = FALSE)
 
 summary(pca_brk)
-plot.PCA(pca_brk)
+#plot.PCA(pca_brk)
 
 library(reshape2)
 # extract pc scores for first two component and add to dat dataframe
-mburu2$pc1_bark <- pca_brk$ind$coord[, 1] # indexing the first column
-mburu2$pc2_bark <- pca_brk$ind$coord[, 2]  # indexing the second column
+liana_tree2$pc1_bark <- pca_brk$ind$coord[, 1] # indexing the first column
+liana_tree2$pc2_bark <- pca_brk$ind$coord[, 2]  # indexing the second column
 pca_vars_brk <- pca_brk$var$coord %>% data.frame
 
 pca_vars_brk$vars <- rownames(pca_vars_brk)
@@ -2458,13 +2471,13 @@ pca_vars_brk$vars <- rownames(pca_vars_brk)
 pca_vars_brk.m <- melt(pca_vars_brk, id.vars = "vars")
 
 library(ggplot2)
-brk_pcaplot <- ggplot(data = mburu2, aes(x = pc1_bark, y = pc2_bark)) +
+brk_pcaplot <- ggplot(data = liana_tree2, aes(x = pc1_bark, y = pc2_bark)) +
   geom_hline(yintercept = 0, lty = 2) +
   geom_vline(xintercept = 0, lty = 2) +
   geom_point(alpha = 0.5,size= 3, aes(colour=growth_form)) +scale_shape_manual(values=c(15,19,17))+
   scale_colour_manual(values = c("lightcoral", "#00E5EE"))+
   geom_segment(data = pca_vars_brk, aes(x = 0, xend = Dim.1*5.5, y = 0, yend = Dim.2*5.5),arrow = arrow(length = unit(0.025, "npc"), type = "open"), lwd = 0.7,colour= "gray") + 
-  xlab("PC1 30.0%") + ylab("PC2 21.1%") + coord_equal() + theme_minimal() + 
+  xlab("PC1 26.25.0%") + ylab("PC2 21.63%") + coord_equal() + theme_minimal() + 
   geom_text_repel(data = pca_vars_brk,size=2.7, fontface = 'bold', min.segment.length = Inf,max.overlaps = Inf,
                   hjust = 0, segment.size = 0.2,aes(x = Dim.1*6, y =  Dim.2*6,
                                                     label = c("C:N", "Lignin:N","Lignin", "Condensed tannins","Hemicellulose", "N","C","Cellulose","Ca","K","Mg","Mn","P","Sugars","Si")),)+
